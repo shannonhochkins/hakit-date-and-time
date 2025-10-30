@@ -1,0 +1,12 @@
+{
+  "components": [
+    {
+      "name": "DigitalClock",
+      "src": "./src/components/DigitalClock/index.tsx"
+    },
+    {
+      "name": "AnalogClock",
+      "src": "./src/components/AnalogClock/index.tsx"
+    }
+  ]
+}
