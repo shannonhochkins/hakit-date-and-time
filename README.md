@@ -2,6 +2,20 @@
 
 Date & time components for HAKIT dashboards: a flip-style (analog inspired) clock, a clean digital clock, and helpers for localized formatting. They pick up the user's Home Assistant locale and timezone automatically, so what you see matches the rest of your HA UI.
 
+#### Analog clock:
+
+A highly customizable analog clock component, almost every visual aspect can be configured.
+
+![Analog Clock](./previews/analog-clock.png)
+
+#### Digital clock & Flip Clock
+
+A clean digital clock component with flexible unit display and styling options.
+
+![Digital Clock](./previews/digital-clock.png)
+
+> For more visual examples, see the [previews-folder](./previews)
+
 ## Highlights
 
 * Two clock styles: animated flip and minimalist digital.
@@ -22,15 +36,6 @@ Date & time components for HAKIT dashboards: a flip-style (analog inspired) cloc
 | Labels | Supported | Supported |
 | Separators | Colon dots (styled) | Colon dots (styled) |
 
-## Screenshots
-
-Flip clock:
-
-![Flip Clock](./previews/flip-clock.png)
-
-Digital clock:
-
-![Digital Clock](./previews/digital-clock.png)
 
 ## More Resources
 

@@ -22,6 +22,8 @@ interface DigitalClockProps {
     minute: boolean;
     second: boolean;
     hours_am_pm: boolean;
+  hoursAmPmFormat?: "default" | "scaled"; // digital mode only
+  hoursAmPmPosition?: "top" | "center" | "bottom"; // for scaled variant
   };
   labels: {
     show: boolean;
@@ -225,9 +227,12 @@ function extractParts(
 }
 
 function enabledUnits(show: DigitalClockProps["show"]): UnitKey[] {
-  return ORDERED_UNITS.filter((k) =>
-    k === "hours_am_pm" ? show.hours_am_pm && show.hourFormat === "12" : show[k]
-  );
+  return ORDERED_UNITS.filter((k) => {
+    if (k === "hours_am_pm") {
+      return show.hours_am_pm && show.hourFormat === "12";
+    }
+    return show[k];
+  });
 }
 
 function buildInitialSections(
@@ -367,6 +372,9 @@ function Render(props: DigitalClockProps) {
     show.minute,
     show.second,
     show.hours_am_pm,
+    show.hoursAmPmFormat,
+    show.hoursAmPmPosition,
+    styleMode,
   ]);
   return (
     <div
@@ -377,65 +385,66 @@ function Render(props: DigitalClockProps) {
         styleMode === "flip" ? "ha-dc__mode_flip" : "ha-dc__mode_digital"
       )}
     >
-      {initSections.map(([key, digits], idx) => (
-        <React.Fragment key={key}>
-          <div className={clsx(`ha-dc__unit_time ha-dc__unit_time--${key}`)}>
-            <div className="ha-dc__digits_row">
-              {digits.map((d, i) => {
-                if (styleMode === "flip") {
+      {initSections.map(([key, digits], idx) => {
+        const nextKey = initSections[idx + 1]?.[0];
+        const isScaledAmPm = key === 'hours_am_pm' && styleMode === 'digital' && show.hoursAmPmFormat === 'scaled';
+        return (
+          <React.Fragment key={key}>
+            <div className={clsx(
+              `ha-dc__unit_time ha-dc__unit_time--${key}`,
+              isScaledAmPm && 'ha-dc__ampm_scaled',
+              isScaledAmPm && `ha-dc__ampm_pos_${show.hoursAmPmPosition || 'center'}`
+            )}>
+              <div className="ha-dc__digits_row">
+                {digits.map((d, i) => {
+                  if (styleMode === 'flip') {
+                    return (
+                      <FlipDigit
+                        key={i}
+                        initial={d}
+                        className={`ha-dc__digit_block--${key}`}
+                        onRegister={(fn) => {
+                          (digitUpdatersRef.current[key] ||= []).push(fn);
+                        }}
+                      />
+                    );
+                  }
                   return (
-                    <FlipDigit
+                    <span
                       key={i}
-                      initial={d}
-                      className={`ha-dc__digit_block--${key}`}
-                      onRegister={(fn) => {
-                        (digitUpdatersRef.current[key] ||= []).push(fn);
+                      className={clsx(
+                        'ha-dc__digit_digital',
+                        `ha-dc__digit_digital--${key}`,
+                        isScaledAmPm && 'ha-dc__digit_digital--ampm_scaled'
+                      )}
+                      ref={(el) => {
+                        if (!el) return;
+                        (digitUpdatersRef.current[key] ||= []).push((next, opts) => {
+                          if (opts?.immediate) { el.textContent = String(next); return; }
+                          if (el.textContent !== String(next)) el.textContent = String(next);
+                        });
                       }}
-                    />
+                    >{d}</span>
                   );
-                }
-                // digital static digit span
-                return (
-                  <span
-                    key={i}
-                    className={clsx(
-                      "ha-dc__digit_digital",
-                      `ha-dc__digit_digital--${key}`
-                    )}
-                    ref={(el) => {
-                      if (!el) return;
-                      // register updater for this position
-                      (digitUpdatersRef.current[key] ||= []).push(
-                        (next, opts) => {
-                          if (opts?.immediate) {
-                            el.textContent = String(next);
-                            return;
-                          }
-                          if (el.textContent !== String(next)) {
-                            el.textContent = String(next);
-                          }
-                        }
-                      );
-                    }}
-                  >
-                    {d}
-                  </span>
-                );
-              })}
-            </div>
-            {labels.show && (
-              <div className="ha-dc__unit_label">
-                {key === "hours_am_pm" && locales.am && locales.pm
-                  ? `${locales.am}/${locales.pm}`.replace(/[0-9\.]/g, "")
-                  : locales[key] || LABELS[key]}
+                })}
               </div>
+              {labels.show && !isScaledAmPm && (
+                <div className="ha-dc__unit_label">
+                  {key === 'hours_am_pm' && locales.am && locales.pm
+                    ? `${locales.am}/${locales.pm}`.replace(/[0-9\.]/g, '')
+                    : locales[key] || LABELS[key]}
+                </div>
+              )}
+              {labels.show && isScaledAmPm && (
+                <div className="ha-dc__unit_label">&nbsp;</div>
+              )}
+            </div>
+            {idx < initSections.length - 1 && appearance.separator !== false && !(nextKey === 'hours_am_pm' && styleMode === 'digital' && show.hoursAmPmFormat === 'scaled') && (
+              <div className={'ha-dc__separator ha-dc__colon'}></div>
             )}
-          </div>
-          {idx < initSections.length - 1 && appearance.separator !== false && (
-            <div className={"ha-dc__separator ha-dc__colon"}></div>
-          )}
-        </React.Fragment>
-      ))}
+          </React.Fragment>
+        );
+      })}
     </div>
   );
 }
@@ -453,7 +462,7 @@ export const config: ComponentConfig<DigitalClockProps> = {
           type: "select",
           label: "Hour Format",
           description: "Use 24-hour or 12-hour (AM/PM) mode.",
-          default: "24",
+          default: "12",
           options: [
             { label: "24 Hour", value: "24" },
             { label: "12 Hour", value: "12" },
@@ -538,6 +547,29 @@ export const config: ComponentConfig<DigitalClockProps> = {
           default: true,
           visible: (data) => data.show?.hourFormat === "12",
         },
+        hoursAmPmFormat: {
+          type: "select",
+          label: "AM/PM Format",
+          description: "Default full size or scaled suffix (digital only).",
+          default: "scaled",
+          options: [
+            { label: "Matching", value: "default" },
+            { label: "Scaled", value: "scaled" },
+          ],
+          visible: (data) => data.show?.hourFormat === "12" && data.show?.hours_am_pm === true,
+        },
+        hoursAmPmPosition: {
+          type: "select",
+          label: "Scaled AM/PM Position",
+          description: "Vertical alignment for scaled AM/PM suffix.",
+          default: "bottom",
+          options: [
+            { label: "Top", value: "top" },
+            { label: "Center", value: "center" },
+            { label: "Bottom", value: "bottom" },
+          ],
+          visible: (data) => data.show?.hourFormat === "12" && data.show?.hours_am_pm === true && data.show?.hoursAmPmFormat === "scaled",
+        },
       },
     },
     labels: {
@@ -600,7 +632,7 @@ export const config: ComponentConfig<DigitalClockProps> = {
           type: "unit",
           label: "Spacing",
           description: "Gap between groups (e.g. between hour and minute).",
-          default: "0.5rem",
+          default: "0.25rem",
           step: 0.1,
         },
         digitWidth: {
@@ -615,6 +647,7 @@ export const config: ComponentConfig<DigitalClockProps> = {
           label: "Digit Height",
           description: "Height of each flip card.",
           default: "5rem",
+          visible: (data) => data.appearance?.styleMode === "flip",
         },
         digitRadius: {
           type: "unit",
@@ -688,12 +721,15 @@ export const config: ComponentConfig<DigitalClockProps> = {
       lastData?.props?.appearance?.styleMode === "flip"
     ) {
       data.props.appearance.digitHeight = "3.125rem";
+      // change the default gap to 0.25rem in digital mode
+      data.props.appearance.spacing = "0.25rem";
     }
     if (
       data.props.appearance.styleMode === "flip" &&
       lastData?.props?.appearance?.styleMode === "digital"
     ) {
       data.props.appearance.digitHeight = "5rem";
+      data.props.appearance.spacing = "0.5rem";
     }
     return data;
   },
@@ -773,11 +809,11 @@ export const config: ComponentConfig<DigitalClockProps> = {
         justify-content: center;
         align-items: center;
         font-size: var(--ha-dc-digit-font-size);
+         --line-height-adjustment: 0.5rem;
+        line-height: calc(var(--ha-dc-digit-font-size) - var(--line-height-adjustment));
         color: var(--ha-dc-digit-color);
         font-weight: 500;
         width: auto; /* no fixed width in digital mode */
-        height: var(--ha-dc-digit-block-height);
-        line-height: 1;
         background: transparent;
       }
       /* hide flip structural elements entirely in digital */
@@ -875,6 +911,29 @@ export const config: ComponentConfig<DigitalClockProps> = {
       .ha-dc__colon::before {
         margin-bottom: var(--ha-dc-separator-size);
       }
+
+      &.ha-dc__mode_digital {
+        .ha-dc__colon {
+          height: calc(var(--ha-dc-digit-font-size) - 0.5rem);
+          align-self: start;
+        }
+      }
+
+      /* scaled AM/PM (digital mode) */
+      .ha-dc__ampm_scaled {
+        .ha-dc__digits_row {
+          height: auto;
+        }
+        .ha-dc__digit_digital--ampm_scaled {
+          font-size: calc(var(--ha-dc-digit-font-size) * 0.5);
+          line-height: calc(var(--ha-dc-digit-font-size) * 0.5);
+        }
+        &.ha-dc__ampm_pos_top { align-self: flex-start; }
+        &.ha-dc__ampm_pos_center { align-self: center; }
+        &.ha-dc__ampm_pos_bottom { align-self: flex-end; }
+      }
+      
+      
     `;
   },
   render: Render,
