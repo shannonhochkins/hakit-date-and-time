@@ -21,7 +21,7 @@ A clean digital clock component with flexible unit display and styling options.
 * Two clock styles: animated flip and minimalist digital.
 * Uses Home Assistant user settings (language + timezone) for all date / time parts.
 * Granular control over which units show: year, month, day, hour, minute, second, AM/PM.
-* Flexible month/day name styles (2‑digit, short, long, narrow) without drowning you in config noise.
+* Flexible month/day name styles (2-digit, short, long, narrow) without drowning you in config noise.
 * Clean separator toggle (colons) and color theming; flip mode keeps the classic card divider.
 * Labels (optional) underneath each group with automatic locale mapping (AM/PM strings cleaned of stray numerals).
 * Efficient updates: digits change once per second without full React re-renders.
