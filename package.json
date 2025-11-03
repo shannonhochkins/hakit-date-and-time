@@ -1,6 +1,6 @@
 {
   "name": "@hakit/date-and-time",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "A collection of date & time related components, including digital and analog clocks, and many options for formatting date/time strings",
   "type": "module",
   "scripts": {

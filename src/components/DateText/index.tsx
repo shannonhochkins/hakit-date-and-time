@@ -93,7 +93,12 @@ const PRESETS: Record<string, PresetDef> = {
     label: "Weekday Month Day Year",
     description: "Mon Oct 20 2025",
     order: ["weekday", "month", "day", "year"],
-    options: { weekday: "short", month: "short", day: "numeric", year: "numeric" },
+    options: {
+      weekday: "short",
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    },
   },
   dmy_slash: {
     label: "D/M/Y Slashes",
@@ -135,7 +140,12 @@ const PRESETS: Record<string, PresetDef> = {
     label: "Full Long",
     description: "Monday, October 20, 2025",
     order: ["weekday", { sep: ", " }, "month", "day", { sep: ", " }, "year"],
-    options: { weekday: "long", month: "long", day: "numeric", year: "numeric" },
+    options: {
+      weekday: "long",
+      month: "long",
+      day: "numeric",
+      year: "numeric",
+    },
   },
   weekday_day_ordinal: {
     label: "Weekday Day Ordinal",
@@ -148,14 +158,32 @@ const PRESETS: Record<string, PresetDef> = {
     label: "Weekday Month Day Year Ordinal",
     description: "Monday November 3rd 2025",
     order: ["weekday", "month", "day", "year"],
-    options: { weekday: "long", month: "long", day: "numeric", year: "numeric" },
+    options: {
+      weekday: "long",
+      month: "long",
+      day: "numeric",
+      year: "numeric",
+    },
     dayOrdinal: true,
   },
   iso_with_weekday: {
     label: "Weekday ISO",
     description: "Mon 2025-10-20",
-    order: ["weekday", { sep: " " }, "year", { sep: "-" }, "month", { sep: "-" }, "day"],
-    options: { weekday: "short", year: "numeric", month: "2-digit", day: "2-digit" },
+    order: [
+      "weekday",
+      { sep: " " },
+      "year",
+      { sep: "-" },
+      "month",
+      { sep: "-" },
+      "day",
+    ],
+    options: {
+      weekday: "short",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    },
   },
   custom: {
     label: "Custom",
@@ -169,10 +197,14 @@ function getOrdinalSuffix(day: number): string {
   const v = day % 100;
   if (v >= 11 && v <= 13) return `${day}th`;
   switch (day % 10) {
-    case 1: return `${day}st`;
-    case 2: return `${day}nd`;
-    case 3: return `${day}rd`;
-    default: return `${day}th`;
+    case 1:
+      return `${day}st`;
+    case 2:
+      return `${day}nd`;
+    case 3:
+      return `${day}rd`;
+    default:
+      return `${day}th`;
   }
 }
 
@@ -199,17 +231,30 @@ interface DateProps {
   };
 }
 
-interface PartValueMap { year?: string; month?: string; day?: string; weekday?: string; }
+interface PartValueMap {
+  year?: string;
+  month?: string;
+  day?: string;
+  weekday?: string;
+}
 
-function buildFormatter(locale: string | undefined, timezone: string | undefined, f: DateProps["format"]): Intl.DateTimeFormat {
-  if (f.preset !== 'custom') {
+function buildFormatter(
+  locale: string | undefined,
+  timezone: string | undefined,
+  f: DateProps["format"]
+): Intl.DateTimeFormat {
+  if (f.preset !== "custom") {
     const def = PRESETS[f.preset];
-    return new Intl.DateTimeFormat(locale, { timeZone: timezone, ...def.options });
+    return new Intl.DateTimeFormat(locale, {
+      timeZone: timezone,
+      ...def.options,
+    });
   }
   const opts: Intl.DateTimeFormatOptions = { timeZone: timezone };
   if (f.year && f.yearFormat) opts.year = f.yearFormat;
   if (f.month && f.monthFormat) opts.month = f.monthFormat;
-  if (f.day && f.dayFormat && f.dayFormat !== 'ordinal') opts.day = f.dayFormat === '2-digit' ? '2-digit' : 'numeric';
+  if (f.day && f.dayFormat && f.dayFormat !== "ordinal")
+    opts.day = f.dayFormat === "2-digit" ? "2-digit" : "numeric";
   if (f.weekday && f.weekdayFormat) opts.weekday = f.weekdayFormat;
   return new Intl.DateTimeFormat(locale, opts);
 }
@@ -217,23 +262,39 @@ function buildFormatter(locale: string | undefined, timezone: string | undefined
 function extractParts(d: Date, fmt: Intl.DateTimeFormat): PartValueMap {
   const out: PartValueMap = {};
   for (const p of fmt.formatToParts(d)) {
-    if (p.type === 'year' || p.type === 'month' || p.type === 'day' || p.type === 'weekday') out[p.type] = p.value;
+    if (
+      p.type === "year" ||
+      p.type === "month" ||
+      p.type === "day" ||
+      p.type === "weekday"
+    )
+      out[p.type] = p.value;
   }
   return out;
 }
 
-function buildSequence(f: DateProps['format']): (DatePartKey | { sep: string })[] {
-  if (f.preset !== 'custom') return PRESETS[f.preset].order;
-  const sepMap: Record<'space'|'slash'|'dash'|'comma-space', string> = { space:' ', slash:'/', dash:'-', 'comma-space':', ' };
-  const sep = sepMap[(f.separatorStyle || 'space') as keyof typeof sepMap];
+function buildSequence(
+  f: DateProps["format"]
+): (DatePartKey | { sep: string })[] {
+  if (f.preset !== "custom") return PRESETS[f.preset].order;
+  const sepMap: Record<"space" | "slash" | "dash" | "comma-space", string> = {
+    space: " ",
+    slash: "/",
+    dash: "-",
+    "comma-space": ", ",
+  };
+  const sep = sepMap[(f.separatorStyle || "space") as keyof typeof sepMap];
   const order: DatePartKey[] = [];
-  if (f.weekday) order.push('weekday');
-  if (f.month) order.push('month');
-  if (f.day) order.push('day');
-  if (f.year) order.push('year');
+  if (f.weekday) order.push("weekday");
+  if (f.month) order.push("month");
+  if (f.day) order.push("day");
+  if (f.year) order.push("year");
   if (order.length <= 1) return order;
   const seq: (DatePartKey | { sep: string })[] = [];
-  order.forEach((part, idx) => { seq.push(part); if (idx < order.length - 1) seq.push({ sep }); });
+  order.forEach((part, idx) => {
+    seq.push(part);
+    if (idx < order.length - 1) seq.push({ sep });
+  });
   return seq;
 }
 
@@ -241,19 +302,29 @@ function buildSequence(f: DateProps['format']): (DatePartKey | { sep: string })[
 // (Removed earlier composeDisplay – DOM renders parts; preview uses composePreview)
 
 // Preview string: inserts a space between adjacent parts when no explicit separator exists
-function composePreview(date: Date, locale: string | undefined, timezone: string | undefined, format: DateProps['format']): string {
+function composePreview(
+  date: Date,
+  locale: string | undefined,
+  timezone: string | undefined,
+  format: DateProps["format"]
+): string {
   const fmt = buildFormatter(locale, timezone, format);
   const raw = extractParts(date, fmt);
-  if ((format.preset === 'custom' && format.day && format.dayFormat === 'ordinal') || (format.preset !== 'custom' && PRESETS[format.preset].dayOrdinal)) {
+  if (
+    (format.preset === "custom" &&
+      format.day &&
+      format.dayFormat === "ordinal") ||
+    (format.preset !== "custom" && PRESETS[format.preset].dayOrdinal)
+  ) {
     raw.day = getOrdinalSuffix(date.getDate());
   }
   const seq = buildSequence(format);
-  let out = '';
+  let out = "";
   let lastWasPart = false;
-  seq.forEach(token => {
-    if (typeof token === 'string') {
-      const v = raw[token] || '';
-      if (lastWasPart && out.length > 0) out += ' ';
+  seq.forEach((token) => {
+    if (typeof token === "string") {
+      const v = raw[token] || "";
+      if (lastWasPart && out.length > 0) out += " ";
       out += v;
       lastWasPart = true;
     } else {
@@ -266,10 +337,18 @@ function composePreview(date: Date, locale: string | undefined, timezone: string
 
 function Render(props: RenderProps<DateProps>) {
   const cfg = useConfig();
-  const timezone = props.timezone.override === 'user-settings' ? cfg?.time_zone : props.timezone.override;
+  const timezone =
+    props.timezone.override === "user-settings"
+      ? cfg?.time_zone
+      : props.timezone.override;
   const locale = getLocale(cfg?.language);
-  const fmt = useMemo(() => buildFormatter(locale, timezone, props.format), [locale, timezone, props.format]);
-  const [parts, setParts] = useState<PartValueMap>(() => extractParts(new Date(), fmt));
+  const fmt = useMemo(
+    () => buildFormatter(locale, timezone, props.format),
+    [locale, timezone, props.format]
+  );
+  const [parts, setParts] = useState<PartValueMap>(() =>
+    extractParts(new Date(), fmt)
+  );
   const seq = useMemo(() => buildSequence(props.format), [props.format]);
   const intervalRef = useRef<number | null>(null);
   useEffect(() => {
@@ -277,8 +356,11 @@ function Render(props: RenderProps<DateProps>) {
       const now = new Date();
       const extracted = extractParts(now, fmt);
       if (
-        (props.format.preset === 'custom' && props.format.day && props.format.dayFormat === 'ordinal') ||
-        (props.format.preset !== 'custom' && PRESETS[props.format.preset].dayOrdinal)
+        (props.format.preset === "custom" &&
+          props.format.day &&
+          props.format.dayFormat === "ordinal") ||
+        (props.format.preset !== "custom" &&
+          PRESETS[props.format.preset].dayOrdinal)
       ) {
         extracted.day = getOrdinalSuffix(now.getDate());
       }
@@ -287,23 +369,45 @@ function Render(props: RenderProps<DateProps>) {
     tick();
     if (intervalRef.current) window.clearInterval(intervalRef.current);
     intervalRef.current = window.setInterval(tick, 60_000);
-    return () => { if (intervalRef.current) window.clearInterval(intervalRef.current); };
+    return () => {
+      if (intervalRef.current) window.clearInterval(intervalRef.current);
+    };
   }, [fmt, props.format.preset, props.format.day, props.format.dayFormat]);
   return (
     <div className="ha-date-text__container">
       {seq.map((token, i) => {
-        if (typeof token === 'string') {
-          const raw = parts[token] || '';
+        if (typeof token === "string") {
+          const raw = parts[token] || "";
           const display = props.appearance.uppercase ? raw.toUpperCase() : raw;
-          const needsSpace = i > 0 && typeof seq[i-1] === 'string';
+          const needsSpace = i > 0 && typeof seq[i - 1] === "string";
           return (
             <React.Fragment key={i}>
-              {needsSpace && <div className="ha-date-text__space" aria-hidden="true">&nbsp;</div>}
-              <div className={"ha-date-text__part ha-date-text__part--"+token} suppressHydrationWarning>{display}</div>
+              {needsSpace && (
+                <div className="ha-date-text__space" aria-hidden="true">
+                  &nbsp;
+                </div>
+              )}
+              <div
+                className={"ha-date-text__part ha-date-text__part--" + token}
+                suppressHydrationWarning
+              >
+                {display}
+              </div>
             </React.Fragment>
           );
         }
-        return <div key={i} className="ha-date-text__sep" suppressHydrationWarning>{token.sep}</div>;
+        // Ensure plain space or comma+space separators render with a non-breaking space for consistent width
+        const sep =
+          token.sep === " "
+            ? "\u00A0"
+            : token.sep === ", "
+              ? ",\u00A0"
+              : token.sep;
+        return (
+          <div key={i} className="ha-date-text__sep" suppressHydrationWarning>
+            {sep}
+          </div>
+        );
       })}
     </div>
   );
@@ -320,33 +424,44 @@ export const config: ComponentConfig<DateProps> = {
         preset: {
           type: "custom",
           label: "Preset",
-          description: "Choose a predefined layout or Custom to build your own.",
+          description:
+            "Choose a predefined layout or Custom to build your own.",
           default: "full_long",
           render({ value, onChange, id }) {
             const cfg = useConfig();
             const timezone = cfg?.time_zone;
             const locale = getLocale(cfg?.language);
             const today = new Date();
-            const optionsBase = Object.keys(PRESETS).map(key => {
-              const fmtConfig: DateProps['format'] = { preset: key as keyof typeof PRESETS };
-              const preview = key === 'custom' ? 'Custom (build below)' : composePreview(today, locale, timezone, fmtConfig);
+            const optionsBase = Object.keys(PRESETS).map((key) => {
+              const fmtConfig: DateProps["format"] = {
+                preset: key as keyof typeof PRESETS,
+              };
+              const preview =
+                key === "custom"
+                  ? "Custom (build below)"
+                  : composePreview(today, locale, timezone, fmtConfig);
               return { preview, key };
             });
             // detect duplicates and append key for clarity
-            const counts: Record<string,string[]> = {};
-            optionsBase.forEach(o => { (counts[o.preview] ||= []).push(o.key); });
-            const options = optionsBase.map(o => {
+            const counts: Record<string, string[]> = {};
+            optionsBase.forEach((o) => {
+              (counts[o.preview] ||= []).push(o.key);
+            });
+            const options = optionsBase.map((o) => {
               const dup = counts[o.preview].length > 1;
-              const dupSuffix = dup ? ` • ${o.key}` : '';
+              const dupSuffix = dup ? ` • ${o.key}` : "";
               const label = `${o.preview}${dupSuffix}`;
               return { label, value: o.key };
             });
-            const selected = options.find(o => o.value === value) || options[0];
-            
+            const selected =
+              options.find((o) => o.value === value) || options[0];
+
             return (
-              <Row style={{
-                padding: 'var(--space-3)'
-              }}>
+              <Row
+                style={{
+                  padding: "var(--space-3)",
+                }}
+              >
                 <SelectField
                   id={id}
                   name={id}
@@ -354,7 +469,7 @@ export const config: ComponentConfig<DateProps> = {
                   value={selected}
                   options={options}
                   helperText="Select a preset format for the date display"
-                  onChange={opt => onChange(opt.value)}
+                  onChange={(opt) => onChange(opt.value)}
                 />
               </Row>
             );
@@ -375,7 +490,8 @@ export const config: ComponentConfig<DateProps> = {
             { label: "Full", value: "numeric" },
             { label: "2 Digit", value: "2-digit" },
           ],
-          visible: (d) => d.format?.preset === "custom" && d.format?.year === true,
+          visible: (d) =>
+            d.format?.preset === "custom" && d.format?.year === true,
           description: "Choose full (e.g. 2025) or 2‑digit (e.g. 25) year.",
         },
         month: {
@@ -395,7 +511,8 @@ export const config: ComponentConfig<DateProps> = {
             { label: "Narrow", value: "narrow" },
             { label: "2 Digit", value: "2-digit" },
           ],
-          visible: (d) => d.format?.preset === "custom" && d.format?.month === true,
+          visible: (d) =>
+            d.format?.preset === "custom" && d.format?.month === true,
           description: "Long/Short/Narrow name or numeric 2‑digit month.",
         },
         day: {
@@ -414,7 +531,8 @@ export const config: ComponentConfig<DateProps> = {
             { label: "2 Digit", value: "2-digit" },
             { label: "Ordinal", value: "ordinal" },
           ],
-          visible: (d) => d.format?.preset === "custom" && d.format?.day === true,
+          visible: (d) =>
+            d.format?.preset === "custom" && d.format?.day === true,
           description: "Numeric (3), zero‑padded (03) or ordinal (3rd).",
         },
         weekday: {
@@ -433,7 +551,8 @@ export const config: ComponentConfig<DateProps> = {
             { label: "Short", value: "short" },
             { label: "Narrow", value: "narrow" },
           ],
-          visible: (d) => d.format?.preset === "custom" && d.format?.weekday === true,
+          visible: (d) =>
+            d.format?.preset === "custom" && d.format?.weekday === true,
           description: "Long (Monday), short (Mon) or narrow (M) form.",
         },
         separatorStyle: {
@@ -460,7 +579,7 @@ export const config: ComponentConfig<DateProps> = {
         fontSize: {
           type: "unit",
           label: "Font Size",
-            description: "Base font size for parts.",
+          description: "Base font size for parts.",
           default: "1rem",
         },
         color: {
@@ -488,7 +607,7 @@ export const config: ComponentConfig<DateProps> = {
         },
       },
     },
-     timezone: {
+    timezone: {
       type: "object",
       label: "Timezone",
       description: "Timezone override (defaults to user settings).",
@@ -513,12 +632,21 @@ export const config: ComponentConfig<DateProps> = {
         color: var(--ha-date-text-color);
         display: inline-flex;
         align-items: baseline;
-        font-weight: ${props.appearance.weight === 'bold' ? 700 : props.appearance.weight === 'medium' ? 500 : 400};
+        font-weight: ${props.appearance.weight === "bold"
+          ? 700
+          : props.appearance.weight === "medium"
+            ? 500
+            : 400};
         user-select: none;
         cursor: default;
       }
-      .ha-date-text__part { line-height: 1; }
-      .ha-date-text__sep { line-height: 1; opacity: 0.75; }
+      .ha-date-text__part {
+        line-height: 1;
+      }
+      .ha-date-text__sep {
+        line-height: 1;
+        opacity: 0.75;
+      }
     `;
   },
   render: Render,

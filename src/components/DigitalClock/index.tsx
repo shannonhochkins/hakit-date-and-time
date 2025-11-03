@@ -23,8 +23,8 @@ interface DigitalClockProps {
     minute: boolean;
     second: boolean;
     hours_am_pm: boolean;
-  hoursAmPmFormat?: "default" | "scaled"; // digital mode only
-  hoursAmPmPosition?: "top" | "center" | "bottom"; // for scaled variant
+    hoursAmPmFormat?: "default" | "scaled"; // digital mode only
+    hoursAmPmPosition?: "top" | "center" | "bottom"; // for scaled variant
   };
   labels: {
     show: boolean;
@@ -379,17 +379,23 @@ function Render(props: DigitalClockProps) {
     >
       {initSections.map(([key, digits], idx) => {
         const nextKey = initSections[idx + 1]?.[0];
-        const isScaledAmPm = key === 'hours_am_pm' && styleMode === 'digital' && show.hoursAmPmFormat === 'scaled';
+        const isScaledAmPm =
+          key === "hours_am_pm" &&
+          styleMode === "digital" &&
+          show.hoursAmPmFormat === "scaled";
         return (
           <React.Fragment key={key}>
-            <div className={clsx(
-              `ha-dc__unit_time ha-dc__unit_time--${key}`,
-              isScaledAmPm && 'ha-dc__ampm_scaled',
-              isScaledAmPm && `ha-dc__ampm_pos_${show.hoursAmPmPosition || 'center'}`
-            )}>
+            <div
+              className={clsx(
+                `ha-dc__unit_time ha-dc__unit_time--${key}`,
+                isScaledAmPm && "ha-dc__ampm_scaled",
+                isScaledAmPm &&
+                  `ha-dc__ampm_pos_${show.hoursAmPmPosition || "center"}`
+              )}
+            >
               <div className="ha-dc__digits_row">
                 {digits.map((d, i) => {
-                  if (styleMode === 'flip') {
+                  if (styleMode === "flip") {
                     return (
                       <FlipDigit
                         key={i}
@@ -405,25 +411,33 @@ function Render(props: DigitalClockProps) {
                     <span
                       key={i}
                       className={clsx(
-                        'ha-dc__digit_digital',
+                        "ha-dc__digit_digital",
                         `ha-dc__digit_digital--${key}`,
-                        isScaledAmPm && 'ha-dc__digit_digital--ampm_scaled'
+                        isScaledAmPm && "ha-dc__digit_digital--ampm_scaled"
                       )}
                       ref={(el) => {
                         if (!el) return;
-                        (digitUpdatersRef.current[key] ||= []).push((next, opts) => {
-                          if (opts?.immediate) { el.textContent = String(next); return; }
-                          if (el.textContent !== String(next)) el.textContent = String(next);
-                        });
+                        (digitUpdatersRef.current[key] ||= []).push(
+                          (next, opts) => {
+                            if (opts?.immediate) {
+                              el.textContent = String(next);
+                              return;
+                            }
+                            if (el.textContent !== String(next))
+                              el.textContent = String(next);
+                          }
+                        );
                       }}
-                    >{d}</span>
+                    >
+                      {d}
+                    </span>
                   );
                 })}
               </div>
               {labels.show && !isScaledAmPm && (
                 <div className="ha-dc__unit_label">
-                  {key === 'hours_am_pm' && locales.am && locales.pm
-                    ? `${locales.am}/${locales.pm}`.replace(/[0-9\.]/g, '')
+                  {key === "hours_am_pm" && locales.am && locales.pm
+                    ? `${locales.am}/${locales.pm}`.replace(/[0-9\.]/g, "")
                     : locales[key] || LABELS[key]}
                 </div>
               )}
@@ -431,9 +445,13 @@ function Render(props: DigitalClockProps) {
                 <div className="ha-dc__unit_label">&nbsp;</div>
               )}
             </div>
-            {idx < initSections.length - 1 && appearance.separator !== false && !(nextKey === 'hours_am_pm' && styleMode === 'digital' && show.hoursAmPmFormat === 'scaled') && (
-              <div className={'ha-dc__separator ha-dc__colon'}></div>
-            )}
+            {idx < initSections.length - 1 &&
+              appearance.separator !== false &&
+              !(
+                nextKey === "hours_am_pm" &&
+                styleMode === "digital" &&
+                show.hoursAmPmFormat === "scaled"
+              ) && <div className={"ha-dc__separator ha-dc__colon"}></div>}
           </React.Fragment>
         );
       })}
@@ -548,7 +566,8 @@ export const config: ComponentConfig<DigitalClockProps> = {
             { label: "Matching", value: "default" },
             { label: "Scaled", value: "scaled" },
           ],
-          visible: (data) => data.show?.hourFormat === "12" && data.show?.hours_am_pm === true,
+          visible: (data) =>
+            data.show?.hourFormat === "12" && data.show?.hours_am_pm === true,
         },
         hoursAmPmPosition: {
           type: "select",
@@ -560,7 +579,10 @@ export const config: ComponentConfig<DigitalClockProps> = {
             { label: "Center", value: "center" },
             { label: "Bottom", value: "bottom" },
           ],
-          visible: (data) => data.show?.hourFormat === "12" && data.show?.hours_am_pm === true && data.show?.hoursAmPmFormat === "scaled",
+          visible: (data) =>
+            data.show?.hourFormat === "12" &&
+            data.show?.hours_am_pm === true &&
+            data.show?.hoursAmPmFormat === "scaled",
         },
       },
     },
@@ -801,8 +823,10 @@ export const config: ComponentConfig<DigitalClockProps> = {
         justify-content: center;
         align-items: center;
         font-size: var(--ha-dc-digit-font-size);
-         --line-height-adjustment: 0.5rem;
-        line-height: calc(var(--ha-dc-digit-font-size) - var(--line-height-adjustment));
+        --line-height-adjustment: 0.5rem;
+        line-height: calc(
+          var(--ha-dc-digit-font-size) - var(--line-height-adjustment)
+        );
         color: var(--ha-dc-digit-color);
         font-weight: 500;
         width: auto; /* no fixed width in digital mode */
@@ -920,12 +944,16 @@ export const config: ComponentConfig<DigitalClockProps> = {
           font-size: calc(var(--ha-dc-digit-font-size) * 0.5);
           line-height: calc(var(--ha-dc-digit-font-size) * 0.5);
         }
-        &.ha-dc__ampm_pos_top { align-self: flex-start; }
-        &.ha-dc__ampm_pos_center { align-self: center; }
-        &.ha-dc__ampm_pos_bottom { align-self: flex-end; }
+        &.ha-dc__ampm_pos_top {
+          align-self: flex-start;
+        }
+        &.ha-dc__ampm_pos_center {
+          align-self: center;
+        }
+        &.ha-dc__ampm_pos_bottom {
+          align-self: flex-end;
+        }
       }
-      
-      
     `;
   },
   render: Render,
