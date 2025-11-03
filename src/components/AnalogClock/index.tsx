@@ -1,7 +1,7 @@
 import { ComponentConfig, RenderProps, UnitFieldValue } from "@hakit/addon";
 import { AnalogClockPrivate } from "./AnalogClock";
 import { css, keyframes } from "@emotion/react";
-import { TIMEZONE_OPTIONS } from "./timezone-options";
+import { TIMEZONE_OPTIONS } from "../../constants";
 import { useConfig } from "@hakit/core";
 
 interface AnalogClockProps {
@@ -53,9 +53,10 @@ export function Render(props: RenderProps<AnalogClockProps>) {
         hourHandLength={props.hands.hour.length}
         minuteHandLength={props.hands.minute.length}
         secondHandLength={props.hands.second.length}
+        locale={config?.language}
         timezone={
           props.timezone.override === "user-settings"
-            ? localTimezone || "user-settings"
+            ? localTimezone
             : props.timezone.override
         }
       />

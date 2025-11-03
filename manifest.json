@@ -2,11 +2,18 @@
   "components": [
     {
       "name": "DigitalClock",
-      "src": "./src/components/DigitalClock/index.tsx"
+      "src": "./src/components/DigitalClock/index.tsx",
+      "description": "A component to display a digital clock with various formatting options, including 12/24 hour modes and seconds display, and an animated flip clock."
     },
     {
       "name": "AnalogClock",
+      "description": "A component to display an analog clock with customizable styles and options.",
       "src": "./src/components/AnalogClock/index.tsx"
+    },
+    {
+      "name": "DateText",
+      "description": "A component to display formatted date strings with various presets and customization options.",
+      "src": "./src/components/DateText/index.tsx"
     }
   ]
 }

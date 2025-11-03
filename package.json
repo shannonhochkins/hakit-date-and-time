@@ -1,6 +1,6 @@
 {
   "name": "@hakit/date-and-time",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "A collection of date & time related components, including digital and analog clocks, and many options for formatting date/time strings",
   "type": "module",
   "scripts": {
@@ -10,15 +10,17 @@
     "create-component": "npx --package=@hakit/addon hakit-create-component"
   },
   "dependencies": {
+    "clsx": "^2.1.1",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
   },
   "devDependencies": {
-    "@hakit/addon": "^0.0.16",
-    "typescript": "^5.9.3",
-    "@types/react": "^19.2.2",
+    "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
-    "@emotion/react": "^11.14.0"
+    "@types/react": "^19.2.2",
+    "typescript": "^5.9.3"
   },
-  "peerDependencies": {}
+  "peerDependencies": {
+    "@hakit/addon": "^0.0.22"
+  }
 }

@@ -1,8 +1,9 @@
 import React, { useEffect, useRef } from "react";
 import { useConfig, useLocales } from "@hakit/core";
-import { TIMEZONE_OPTIONS } from "../AnalogClock/timezone-options";
+import { TIMEZONE_OPTIONS } from "../../constants";
 import { css } from "@emotion/react";
 import { ComponentConfig, UnitFieldValue } from "@hakit/addon";
+import { getLocale } from "../../helpers";
 import clsx from "clsx";
 export type Digit = number | string;
 
@@ -174,7 +175,7 @@ type UnitKey =
 
 function buildDateFormatter(
   locale: string | undefined,
-  timezone: string,
+  timezone: string | undefined,
   show: DigitalClockProps["show"]
 ) {
   const hourFormat = show.hourFormat;
@@ -313,10 +314,9 @@ function applyTick(
 function Render(props: DigitalClockProps) {
   const cfg = useConfig();
   const locales = useLocales();
-  console.log("cfg", cfg);
   const timezone =
     props.timezone.override === "user-settings"
-      ? cfg?.time_zone || "UTC"
+      ? cfg?.time_zone
       : props.timezone.override;
   const { show } = props;
   const hourFormat = show.hourFormat;
@@ -326,15 +326,7 @@ function Render(props: DigitalClockProps) {
   const digitUpdatersRef = useRef<Record<string, DigitUpdater[]>>({});
   const firstRunRef = useRef(true);
   const mountNowRef = useRef<Date>(new Date());
-  let lang =
-    cfg?.language ||
-    (typeof navigator !== "undefined" ? navigator.language : "en-US");
-  let locale: string | undefined = undefined;
-  try {
-    locale = Intl.getCanonicalLocales([lang])[0];
-  } catch {
-    // ignore, use default
-  }
+  const locale = getLocale(cfg?.language);
   const fmt = buildDateFormatter(locale, timezone, show);
   const enabled = enabledUnits(show);
   const initSections = buildInitialSections(

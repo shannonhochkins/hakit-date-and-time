@@ -1,4 +1,5 @@
 import React, { useMemo } from "react";
+import { getLocale } from "../../helpers";
 
 export interface AnalogClockPrivateProps {
   showSecondHand?: boolean;
@@ -17,6 +18,7 @@ export interface AnalogClockPrivateProps {
   minuteHandLength?: number;
   secondHandLength?: number;
   timezone?: string; // IANA timezone or 'user-settings'
+  locale?: string;
 }
 
 export const AnalogClockPrivate: React.FC<AnalogClockPrivateProps> = ({
@@ -36,6 +38,7 @@ export const AnalogClockPrivate: React.FC<AnalogClockPrivateProps> = ({
   minuteHandLength = 100,
   secondHandLength = 120,
   timezone = 'user-settings',
+  locale,
 }) => {
   // Geometric constants for full usage of 300x300 viewBox
   const FRAME_RADIUS = 145; // circle nearly touching edges (leave slight padding)
@@ -48,14 +51,14 @@ export const AnalogClockPrivate: React.FC<AnalogClockPrivateProps> = ({
   // Compute initial offsets (in seconds) for animation-delay similar to HA implementation
   const { hourDelay, minuteDelay, secondDelay, hourRotationStart, minuteRotationStart, secondRotationStart } = useMemo(() => {
     try {
-      const tz = timezone === 'user-settings' ? undefined : timezone;
       const now = new Date();
-      const formatter = new Intl.DateTimeFormat(undefined, {
+      const updatedLocale = getLocale(locale);
+      const formatter = new Intl.DateTimeFormat(updatedLocale, {
         hour: '2-digit',
         minute: '2-digit',
         second: '2-digit',
         hourCycle: 'h12',
-        timeZone: tz,
+        timeZone: timezone,
       });
       const parts = formatter.formatToParts(now);
       const hourStr = parts.find(p => p.type === 'hour')?.value || '0';

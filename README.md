@@ -16,6 +16,10 @@ A clean digital clock component with flexible unit display and styling options.
 
 > For more visual examples, see the [previews-folder](./previews)
 
+
+#### DateText
+A helper component to format date strings with granular control over which parts show, their styles, and order, using your locale and home assistant settings to format dates how you would normally see them in your locale/timezone.
+
 ## Highlights
 
 * Two clock styles: animated flip and minimalist digital.
