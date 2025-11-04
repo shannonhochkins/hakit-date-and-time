@@ -21,6 +21,6 @@
     "typescript": "^5.9.3"
   },
   "peerDependencies": {
-    "@hakit/addon": "^0.0.22"
+    "@hakit/addon": "^0.0.23"
   }
 }

@@ -15,7 +15,7 @@
         "typescript": "^5.9.3",
       },
       "peerDependencies": {
-        "@hakit/addon": "^0.0.22",
+        "@hakit/addon": "^0.0.23",
       },
     },
   },
@@ -138,7 +138,7 @@
 
     "@esbuild/win32-x64": ["@esbuild/win32-x64@0.25.5", "", { "os": "win32", "cpu": "x64" }, "sha512-TXv6YnJ8ZMVdX+SXWVBo/0p8LTcrUYngpWjvm91TMjjBQii7Oz11Lw5lbDV5Y0TzuhSJHwiH4hEtC1I42mMS0g=="],
 
-    "@hakit/addon": ["@hakit/addon@0.0.22", "", { "peerDependencies": { "@emotion/react": "^11.0.0", "@hakit/core": "^5.1.6", "@measured/puck": "^0.20.1", "@module-federation/rsbuild-plugin": "^0.21.2", "@module-federation/sdk": "^0.21.2", "@monaco-editor/react": "^4.7.0", "@rsbuild/core": "^1.6.0", "@rsbuild/plugin-react": "^1.4.1", "@swc/plugin-emotion": "^12.0.0", "archiver": "^7.0.1", "chalk": "^5.3.0", "commander": "^12.1.0", "fs-extra": "^11.2.0", "home-assistant-js-websocket": "^9.5.0", "lucide-react": "^0.552.0", "prompts": "^2.4.2", "react": "^19.1.1", "react-dom": "^19.1.1" }, "bin": { "hakit-create-component": "dist/component/index.js", "hakit-bundle": "dist/bundle/bundle.js", "hakit-dev": "dist/bundle/dev.js", "addon": "dist/bin/index.js" } }, "sha512-GsItOSyNcAYeNQyzgFd/EMjdDLTTzLEacbols13cVSKLI6PE4tu0C8N04FSY7NTKW9eT0/K+tEOv63t3n805kw=="],
+    "@hakit/addon": ["@hakit/addon@0.0.23", "", { "peerDependencies": { "@emotion/react": "^11.0.0", "@hakit/core": "^5.1.6", "@measured/puck": "^0.20.1", "@module-federation/rsbuild-plugin": "^0.21.2", "@module-federation/sdk": "^0.21.2", "@monaco-editor/react": "^4.7.0", "@rsbuild/core": "^1.6.0", "@rsbuild/plugin-react": "^1.4.1", "@swc/plugin-emotion": "^12.0.0", "archiver": "^7.0.1", "chalk": "^5.3.0", "commander": "^12.1.0", "fs-extra": "^11.2.0", "home-assistant-js-websocket": "^9.5.0", "lucide-react": "^0.552.0", "prompts": "^2.4.2", "react": "^19.1.1", "react-dom": "^19.1.1" }, "bin": { "hakit-create-component": "dist/component/index.js", "hakit-bundle": "dist/bundle/bundle.js", "hakit-dev": "dist/bundle/dev.js", "addon": "dist/bin/index.js" } }, "sha512-u2JYxgoT/9DhB9jX/LdZc5Nh7za8p2amYmrFkEP/yIGXza8DtnaBin50Sa7KxLjaYjtoqLjFgekhYd0C4OzMwg=="],
 
     "@hakit/core": ["@hakit/core@5.1.6", "", { "peerDependencies": { "@emotion/react": ">=11.x", "@emotion/styled": ">=11.x", "@iconify/react": ">=5.x", "home-assistant-js-websocket": ">=9.x.x", "lodash": ">=4.x", "prettier": ">=3.4.2", "react": ">=19.x", "react-dom": ">=19.x", "use-debounce": ">=9.x", "ws": ">=8.x.x", "yargs": ">=17.x.x", "zustand": "^5.0.5" }, "bin": { "hakit-sync-types": "dist/sync/cli/cli.js" } }, "sha512-cXmpFa2qenN2Q3JhBC1Mwo2qN8FfyOsS6sb7Bg29iT4DFbesZ5jN93pRcvwPA+ccdYkgsj2MuxKTqIh5QYbeDQ=="],
 
