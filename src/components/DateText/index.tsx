@@ -190,8 +190,6 @@ interface DateProps {
     weekday?: boolean;
     weekdayFormat?: "short" | "long" | "narrow";
     separatorStyle?: "space" | "slash" | "dash" | "comma-space";
-  };
-  appearance: {
     fontSize: UnitFieldValue;
     color: string;
     weight: "regular" | "medium" | "bold";
@@ -201,9 +199,9 @@ interface DateProps {
 
 interface PartValueMap { year?: string; month?: string; day?: string; weekday?: string; }
 
-function buildFormatter(locale: string | undefined, timezone: string | undefined, f: DateProps["format"]): Intl.DateTimeFormat {
+function buildFormatter(locale: string | undefined, timezone: string | undefined, f: Partial<DateProps["format"]>): Intl.DateTimeFormat {
   if (f.preset !== 'custom') {
-    const def = PRESETS[f.preset];
+    const def = PRESETS[f.preset as keyof typeof PRESETS] || PRESETS.full_long;
     return new Intl.DateTimeFormat(locale, { timeZone: timezone, ...def.options });
   }
   const opts: Intl.DateTimeFormatOptions = { timeZone: timezone };
@@ -222,8 +220,8 @@ function extractParts(d: Date, fmt: Intl.DateTimeFormat): PartValueMap {
   return out;
 }
 
-function buildSequence(f: DateProps['format']): (DatePartKey | { sep: string })[] {
-  if (f.preset !== 'custom') return PRESETS[f.preset].order;
+function buildSequence(f: Partial<DateProps['format']>): (DatePartKey | { sep: string })[] {
+  if (f.preset !== 'custom') return PRESETS[f.preset as keyof typeof PRESETS]?.order || [];
   const sepMap: Record<'space'|'slash'|'dash'|'comma-space', string> = { space:' ', slash:'/', dash:'-', 'comma-space':', ' };
   const sep = sepMap[(f.separatorStyle || 'space') as keyof typeof sepMap];
   const order: DatePartKey[] = [];
@@ -241,10 +239,10 @@ function buildSequence(f: DateProps['format']): (DatePartKey | { sep: string })[
 // (Removed earlier composeDisplay – DOM renders parts; preview uses composePreview)
 
 // Preview string: inserts a space between adjacent parts when no explicit separator exists
-function composePreview(date: Date, locale: string | undefined, timezone: string | undefined, format: DateProps['format']): string {
+function composePreview(date: Date, locale: string | undefined, timezone: string | undefined, format: Partial<DateProps['format']>): string {
   const fmt = buildFormatter(locale, timezone, format);
   const raw = extractParts(date, fmt);
-  if ((format.preset === 'custom' && format.day && format.dayFormat === 'ordinal') || (format.preset !== 'custom' && PRESETS[format.preset].dayOrdinal)) {
+  if ((format.preset === 'custom' && format.day && format.dayFormat === 'ordinal') || (format.preset !== 'custom' && PRESETS[format.preset as keyof typeof PRESETS]?.dayOrdinal)) {
     raw.day = getOrdinalSuffix(date.getDate());
   }
   const seq = buildSequence(format);
@@ -268,9 +266,9 @@ function Render(props: RenderProps<DateProps>) {
   const cfg = useConfig();
   const timezone = props.timezone.override === 'user-settings' ? cfg?.time_zone : props.timezone.override;
   const locale = getLocale(cfg?.language);
-  const fmt = useMemo(() => buildFormatter(locale, timezone, props.format), [locale, timezone, props.format]);
+  const fmt = useMemo(() => buildFormatter(locale, timezone, props.format as DateProps['format']), [locale, timezone, props.format]);
   const [parts, setParts] = useState<PartValueMap>(() => extractParts(new Date(), fmt));
-  const seq = useMemo(() => buildSequence(props.format), [props.format]);
+  const seq = useMemo(() => buildSequence(props.format as DateProps['format']), [props.format]);
   const intervalRef = useRef<number | null>(null);
   useEffect(() => {
     const tick = () => {
@@ -294,7 +292,7 @@ function Render(props: RenderProps<DateProps>) {
       {seq.map((token, i) => {
         if (typeof token === 'string') {
           const raw = parts[token] || '';
-          const display = props.appearance.uppercase ? raw.toUpperCase() : raw;
+          const display = props.format.uppercase ? raw.toUpperCase() : raw;
           const needsSpace = i > 0 && typeof seq[i-1] === 'string';
           return (
             <React.Fragment key={i}>
@@ -330,7 +328,7 @@ export const config: ComponentConfig<DateProps> = {
             const locale = getLocale(cfg?.language);
             const today = new Date();
             const optionsBase = Object.keys(PRESETS).map(key => {
-              const fmtConfig: DateProps['format'] = { preset: key as keyof typeof PRESETS };
+              const fmtConfig: Partial<DateProps['format']> = { preset: key as keyof typeof PRESETS };
               const preview = key === 'custom' ? 'Custom (build below)' : composePreview(today, locale, timezone, fmtConfig);
               return { preview, key };
             });
@@ -451,14 +449,6 @@ export const config: ComponentConfig<DateProps> = {
           visible: (d) => d.format?.preset === "custom",
           description: "Character placed between adjacent date parts.",
         },
-      },
-    },
-    appearance: {
-      type: "object",
-      label: "Appearance",
-      description: "Styling for the date string.",
-      section: { expanded: false },
-      objectFields: {
         fontSize: {
           type: "unit",
           label: "Font Size",
@@ -509,13 +499,13 @@ export const config: ComponentConfig<DateProps> = {
   styles(props) {
     return css`
       &.ha-date-text__container {
-        --ha-date-text-font-size: ${props.appearance.fontSize};
-        --ha-date-text-color: ${props.appearance.color};
+        --ha-date-text-font-size: ${props.format.fontSize};
+        --ha-date-text-color: ${props.format.color};
         font-size: var(--ha-date-text-font-size);
         color: var(--ha-date-text-color);
         display: inline-flex;
         align-items: baseline;
-        font-weight: ${props.appearance.weight === 'bold' ? 700 : props.appearance.weight === 'medium' ? 500 : 400};
+        font-weight: ${props.format.weight === 'bold' ? 700 : props.format.weight === 'medium' ? 500 : 400};
         user-select: none;
         cursor: default;
       }

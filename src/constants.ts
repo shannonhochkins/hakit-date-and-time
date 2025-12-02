@@ -1,7 +1,7 @@
 export interface TimezoneOption { label: string; value: string; }
 
 // Value is IANA timezone string. 'user-settings' means use local system timezone.
-export const TIMEZONE_OPTIONS: readonly TimezoneOption[] = [
+export const TIMEZONE_OPTIONS: TimezoneOption[] = [
   { label: 'Use user settings', value: 'user-settings' },
   { label: '(GMT-11:00) Niue', value: 'Pacific/Niue' },
   { label: '(GMT-11:00) Pago Pago', value: 'Pacific/Pago_Pago' },

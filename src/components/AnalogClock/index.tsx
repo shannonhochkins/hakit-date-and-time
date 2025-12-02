@@ -71,6 +71,15 @@ const sweep = keyframes`
 
 export const config: ComponentConfig<AnalogClockProps> = {
   label: "AnalogClock",
+  internalFields: {
+    omit: {
+      $appearance: {
+        design: true,
+        sizeAndSpacing: true,
+        typography: true,
+      }
+    }
+  },
   fields: {
     clockFace: {
       type: "object",

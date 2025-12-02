@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from "react";
 import { useConfig, useLocales } from "@hakit/core";
 import { TIMEZONE_OPTIONS } from "../../constants";
 import { css } from "@emotion/react";
-import { ComponentConfig, UnitFieldValue } from "@hakit/addon";
+import { ComponentConfig, RenderProps, UnitFieldValue } from "@hakit/addon";
 import { getLocale } from "../../helpers";
 import clsx from "clsx";
 export type Digit = number | string;
@@ -32,7 +32,7 @@ interface DigitalClockProps {
     color: string;
     position: "center" | "start" | "end";
   };
-  appearance: {
+  clock: {
     styleMode: StyleMode;
     spacing: UnitFieldValue;
     digitWidth: UnitFieldValue;
@@ -311,7 +311,7 @@ function applyTick(
   if (firstRunRef.current) firstRunRef.current = false;
 }
 
-function Render(props: DigitalClockProps) {
+function Render(props: RenderProps<DigitalClockProps>) {
   const cfg = useConfig();
   const locales = useLocales();
   const timezone =
@@ -320,8 +320,8 @@ function Render(props: DigitalClockProps) {
       : props.timezone.override;
   const { show } = props;
   const hourFormat = show.hourFormat;
-  const { labels, appearance } = props;
-  const { styleMode } = appearance;
+  const { labels, clock } = props;
+  const { styleMode } = clock;
   const containerRef = useRef<HTMLDivElement>(null);
   const digitUpdatersRef = useRef<Record<string, DigitUpdater[]>>({});
   const firstRunRef = useRef(true);
@@ -446,7 +446,7 @@ function Render(props: DigitalClockProps) {
               )}
             </div>
             {idx < initSections.length - 1 &&
-              appearance.separator !== false &&
+              clock.separator !== false &&
               !(
                 nextKey === "hours_am_pm" &&
                 styleMode === "digital" &&
@@ -461,6 +461,16 @@ function Render(props: DigitalClockProps) {
 
 export const config: ComponentConfig<DigitalClockProps> = {
   label: "DigitalClock",
+  internalFields: {
+    omit: {
+      $appearance: {
+        sizeAndSpacing: {
+          width: true,
+          height: true,
+        }
+      }
+    }
+  },
   fields: {
     show: {
       type: "object",
@@ -567,7 +577,9 @@ export const config: ComponentConfig<DigitalClockProps> = {
             { label: "Scaled", value: "scaled" },
           ],
           visible: (data) =>
-            data.show?.hourFormat === "12" && data.show?.hours_am_pm === true,
+            data.clock?.styleMode === "digital" &&
+            data.show?.hourFormat === "12" &&
+            data.show?.hours_am_pm === true,
         },
         hoursAmPmPosition: {
           type: "select",
@@ -580,6 +592,7 @@ export const config: ComponentConfig<DigitalClockProps> = {
             { label: "Bottom", value: "bottom" },
           ],
           visible: (data) =>
+            data.clock?.styleMode === "digital" &&
             data.show?.hourFormat === "12" &&
             data.show?.hours_am_pm === true &&
             data.show?.hoursAmPmFormat === "scaled",
@@ -626,10 +639,10 @@ export const config: ComponentConfig<DigitalClockProps> = {
         },
       },
     },
-    appearance: {
+    clock: {
       type: "object",
-      label: "Appearance",
-      description: "Visual styling for digits, spacing, colors and animation.",
+      label: "Clock",
+      description: "Clock appearance configuration",
       section: { expanded: false },
       objectFields: {
         styleMode: {
@@ -654,21 +667,21 @@ export const config: ComponentConfig<DigitalClockProps> = {
           label: "Digit Width",
           description: "Width of each flip card.",
           default: "2.875rem",
-          visible: (data) => data.appearance?.styleMode === "flip",
+          visible: (data) => data.clock?.styleMode === "flip",
         },
         digitHeight: {
           type: "unit",
           label: "Digit Height",
           description: "Height of each flip card.",
           default: "5rem",
-          visible: (data) => data.appearance?.styleMode === "flip",
+          visible: (data) => data.clock?.styleMode === "flip",
         },
         digitRadius: {
           type: "unit",
           label: "Digit Radius",
           description: "Corner radius of flip cards.",
           default: "0.25rem",
-          visible: (data) => data.appearance?.styleMode === "flip",
+          visible: (data) => data.clock?.styleMode === "flip",
         },
         digitFontSize: {
           type: "unit",
@@ -682,6 +695,7 @@ export const config: ComponentConfig<DigitalClockProps> = {
           label: "Background",
           description: "Background color of digit halves.",
           default: "var(--clr-surface-a30)",
+          visible: (data) => data.clock?.styleMode === "flip",
         },
         digitColor: {
           type: "color",
@@ -700,14 +714,14 @@ export const config: ComponentConfig<DigitalClockProps> = {
           label: "Separator Color",
           default: "var(--clr-primary-a70)",
           description: "Color of colon separator dots.",
-          visible: (data) => data.appearance?.separator !== false,
+          visible: (data) => data.clock?.separator !== false,
         },
         dividerColor: {
           type: "color",
           label: "Divider Color",
           description: "Color of the horizontal divider line in flip cards.",
           default: "var(--clr-surface-a10)",
-          visible: (data) => data.appearance?.styleMode === "flip",
+          visible: (data) => data.clock?.styleMode === "flip",
         },
       },
     },
@@ -731,19 +745,19 @@ export const config: ComponentConfig<DigitalClockProps> = {
   resolveData(data, { lastData }) {
     // change some values when swapping appearance mode
     if (
-      data.props.appearance.styleMode === "digital" &&
-      lastData?.props?.appearance?.styleMode === "flip"
+      data.props.clock.styleMode === "digital" &&
+        lastData?.props?.clock?.styleMode === "flip"
     ) {
-      data.props.appearance.digitHeight = "3.125rem";
+      data.props.clock.digitHeight = "3.125rem";
       // change the default gap to 0.25rem in digital mode
-      data.props.appearance.spacing = "0.25rem";
+      data.props.clock.spacing = "0.25rem";
     }
     if (
-      data.props.appearance.styleMode === "flip" &&
-      lastData?.props?.appearance?.styleMode === "digital"
+      data.props.clock.styleMode === "flip" &&
+      lastData?.props?.clock?.styleMode === "digital"
     ) {
-      data.props.appearance.digitHeight = "5rem";
-      data.props.appearance.spacing = "0.5rem";
+      data.props.clock.digitHeight = "5rem";
+      data.props.clock.spacing = "0.5rem";
     }
     return data;
   },
@@ -753,23 +767,22 @@ export const config: ComponentConfig<DigitalClockProps> = {
         /* dynamic variables from appearance props */
         /* static flip duration */
         --ha-dc-flip-duration: 0.7s;
-        --ha-dc-spacing: ${props.appearance.spacing};
-        --ha-dc-digit-block-width: ${props.appearance.digitWidth};
-        --ha-dc-digit-block-height: ${props.appearance.digitHeight};
-        --ha-dc-digit-block-radius: ${props.appearance.digitRadius};
+        --ha-dc-spacing: ${props.clock.spacing};
+        --ha-dc-digit-block-width: ${props.clock.digitWidth};
+        --ha-dc-digit-block-height: ${props.clock.digitHeight};
+        --ha-dc-digit-block-radius: ${props.clock.digitRadius};
         --ha-dc-digit-block-spacing: 4px; /* original default */
-        --ha-dc-digit-font-size: ${props.appearance.digitFontSize};
+        --ha-dc-digit-font-size: ${props.clock.digitFontSize};
         --ha-dc-label-font-size: ${props.labels.fontSize};
         --ha-dc-label-color: ${props.labels.color};
         --ha-dc-label-position: ${props.labels.position};
-        --ha-dc-background: ${props.appearance.backgroundColor};
-        --ha-dc-digit-color: ${props.appearance.digitColor};
-        --ha-dc-divider-color: ${props.appearance.dividerColor};
+        --ha-dc-background: ${props.clock.backgroundColor};
+        --ha-dc-digit-color: ${props.clock.digitColor};
+        --ha-dc-divider-color: ${props.clock.dividerColor};
         --ha-dc-divider-height: 1px;
         --ha-dc-shadow: 0 0 2px 1px rgba(0, 0, 0, 0.1);
         --ha-dc-separator-size: 5px;
-        --ha-dc-separator-color: ${props.appearance.separatorColor};
-        font-family: inherit;
+        --ha-dc-separator-color: ${props.clock.separatorColor};
         user-select: none;
         cursor: default;
         display: flex;
@@ -814,7 +827,6 @@ export const config: ComponentConfig<DigitalClockProps> = {
         line-height: 0;
         width: var(--ha-dc-digit-block-width);
         height: var(--ha-dc-digit-block-height);
-        box-shadow: var(--ha-dc-shadow);
         border-radius: var(--ha-dc-digit-block-radius);
       }
       /* digital mode simple digits */
